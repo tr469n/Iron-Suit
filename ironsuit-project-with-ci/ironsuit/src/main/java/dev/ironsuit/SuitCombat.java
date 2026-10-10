@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -181,7 +182,8 @@ public final class SuitCombat {
         log("repulsor shot, hit entity: {}", hit.target);
         drawBeam(level, from, hit.end, 1.0, false);
 
-        level.sendParticles(ParticleTypes.FLASH, from.x, from.y, from.z, 1, 0, 0, 0, 0);
+        level.sendParticles(ColorParticleOption.create(ParticleTypes.FLASH, 0xFFFFFF),
+            from.x, from.y, from.z, 1, 0.0, 0.0, 0.0, 0.0);
         level.sendParticles(ParticleTypes.ELECTRIC_SPARK, hit.end.x, hit.end.y, hit.end.z, 8, 0.15, 0.15, 0.15, 0.1);
         play(level, player, SoundEvents.FIREWORK_ROCKET_BLAST, 0.8F, 1.7F);
 
@@ -211,7 +213,8 @@ public final class SuitCombat {
         Hit hit = trace(level, player, from, look, range);
         drawBeam(level, from, hit.end, 0.5, true);
 
-        level.sendParticles(ParticleTypes.FLASH, from.x, from.y, from.z, 1, 0, 0, 0, 0);
+        level.sendParticles(ColorParticleOption.create(ParticleTypes.FLASH, 0xFFFFFF),
+            from.x, from.y, from.z, 1, 0.0, 0.0, 0.0, 0.0);
         play(level, player, SoundEvents.WARDEN_SONIC_BOOM, 1.2F, 1.4F);
 
         float damage = BEAM_DAMAGE_MIN + (BEAM_DAMAGE_MAX - BEAM_DAMAGE_MIN) * power;
@@ -226,7 +229,6 @@ public final class SuitCombat {
 
         // Recoil: the blast pushes the shooter back a little.
         player.push(-look.x * 0.4 * power, 0.05, -look.z * 0.4 * power);
-        player.hurtMarked = true;
     }
 
     // ------------------------------------------------------------------ ray casting
@@ -295,7 +297,6 @@ public final class SuitCombat {
 
     private static void knockback(LivingEntity target, Vec3 dir, double strength) {
         target.push(dir.x * strength, 0.15 + dir.y * strength * 0.5, dir.z * strength);
-        target.hurtMarked = true;
     }
 
     private static void log(String message, Object... args) {

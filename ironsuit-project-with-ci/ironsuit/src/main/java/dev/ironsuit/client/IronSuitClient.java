@@ -15,6 +15,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.common.util.Lazy;
 
@@ -42,6 +43,7 @@ public final class IronSuitClient {
     private static int heartbeat;
     private static boolean repulsorWasDown;
     private static boolean beamWasDown;
+    private static boolean screenOpen;
 
     private IronSuitClient() {}
 
@@ -57,6 +59,11 @@ public final class IronSuitClient {
     @SubscribeEvent // mod event bus
     public static void registerHud(RegisterGuiLayersEvent event) {
         event.registerAboveAll(Identifier.fromNamespaceAndPath(IronSuit.MODID, "suit_hud"), SuitHud::render);
+    }
+
+    @SubscribeEvent // game event bus
+    public static void onScreenOpening(ScreenEvent.Opening event) {
+        screenOpen = event.getNewScreen() != null;
     }
 
     @SubscribeEvent // game event bus
@@ -76,7 +83,7 @@ public final class IronSuitClient {
         // Weapons. The state is re-sent every few ticks while a key is held (the server releases the weapon if it
         // stops hearing from us), and a quick tap is caught through consumeClick() so it still fires once.
         Minecraft mc = Minecraft.getInstance();
-        boolean canFire = mc.player != null && mc.screen == null;
+        boolean canFire = mc.player != null && !screenOpen;
         boolean repulsorTapped = false;
         while (FIRE_REPULSOR.get().consumeClick()) {
             repulsorTapped = true;
