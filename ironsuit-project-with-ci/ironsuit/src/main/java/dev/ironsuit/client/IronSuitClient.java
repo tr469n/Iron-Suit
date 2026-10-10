@@ -2,7 +2,9 @@ package dev.ironsuit.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.ironsuit.IronSuit;
+import dev.ironsuit.SuitCombat;
 import dev.ironsuit.network.ToggleSuitPayload;
+import dev.ironsuit.network.WeaponInputPayload;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
@@ -24,12 +26,25 @@ public final class IronSuitClient {
     public static final Lazy<KeyMapping> TOGGLE_SUIT =
             Lazy.of(() -> new KeyMapping("key.ironsuit.toggle_suit", InputConstants.KEY_R, CATEGORY));
 
+    /** Default key: V. Hold to fire the palm repulsors. */
+    public static final Lazy<KeyMapping> FIRE_REPULSOR =
+            Lazy.of(() -> new KeyMapping("key.ironsuit.fire_repulsor", InputConstants.KEY_V, CATEGORY));
+
+    /** Default key: B. Hold to charge the chest reactor beam, release to fire. */
+    public static final Lazy<KeyMapping> FIRE_BEAM =
+            Lazy.of(() -> new KeyMapping("key.ironsuit.fire_beam", InputConstants.KEY_B, CATEGORY));
+
+    private static boolean repulsorWasDown;
+    private static boolean beamWasDown;
+
     private IronSuitClient() {}
 
     @SubscribeEvent // mod event bus
     public static void registerKeys(RegisterKeyMappingsEvent event) {
         event.registerCategory(CATEGORY);
         event.register(TOGGLE_SUIT.get());
+        event.register(FIRE_REPULSOR.get());
+        event.register(FIRE_BEAM.get());
     }
 
     @SubscribeEvent // mod event bus
@@ -44,5 +59,21 @@ public final class IronSuitClient {
                 ClientPacketDistributor.sendToServer(new ToggleSuitPayload());
             }
         }
+
+        // Weapons: only send a packet when the state of the key changes. Keys count as released in menus.
+        Minecraft mc = Minecraft.getInstance();
+        boolean canFire = mc.player != null && mc.screen == null;
+        boolean repulsorDown = canFire && FIRE_REPULSOR.get().isDown();
+        boolean beamDown = canFire && FIRE_BEAM.get().isDown();
+        if (mc.player != null) {
+            if (repulsorDown != repulsorWasDown) {
+                ClientPacketDistributor.sendToServer(new WeaponInputPayload(SuitCombat.WEAPON_REPULSOR, repulsorDown));
+            }
+            if (beamDown != beamWasDown) {
+                ClientPacketDistributor.sendToServer(new WeaponInputPayload(SuitCombat.WEAPON_BEAM, beamDown));
+            }
+        }
+        repulsorWasDown = repulsorDown;
+        beamWasDown = beamDown;
     }
 }

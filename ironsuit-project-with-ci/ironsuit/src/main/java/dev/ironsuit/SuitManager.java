@@ -14,6 +14,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 /**
@@ -73,6 +74,32 @@ public final class SuitManager {
 
     public static void cancel(UUID id) {
         TASKS.remove(id);
+    }
+
+    public static boolean isActive(Player player) {
+        ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
+        return isSuitChest(chest) && hasCore(chest)
+                && player.getItemBySlot(EquipmentSlot.HEAD).is(ModItems.MARK85_HELMET.get());
+    }
+
+    public static int getEnergy(Player player) {
+        ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
+        return isSuitChest(chest) || isReactor(chest)
+                ? chest.getOrDefault(ModComponents.ENERGY.get(), 0)
+                : 0;
+    }
+
+    public static boolean consumeEnergy(Player player, int amount) {
+        ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
+        if (!isSuitChest(chest) && !isReactor(chest)) {
+            return false;
+        }
+        int energy = chest.getOrDefault(ModComponents.ENERGY.get(), 0);
+        if (energy < amount) {
+            return false;
+        }
+        chest.set(ModComponents.ENERGY.get(), energy - amount);
+        return true;
     }
 
     /** Called every server tick for every player. */

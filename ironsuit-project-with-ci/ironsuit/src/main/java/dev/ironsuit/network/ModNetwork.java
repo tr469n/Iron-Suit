@@ -1,6 +1,7 @@
 package dev.ironsuit.network;
 
 import dev.ironsuit.IronSuit;
+import dev.ironsuit.SuitCombat;
 import dev.ironsuit.SuitManager;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -18,6 +19,11 @@ public final class ModNetwork {
         registrar.playToServer(ToggleSuitPayload.TYPE, ToggleSuitPayload.STREAM_CODEC, (payload, context) -> {
             if (context.player() instanceof ServerPlayer player) {
                 SuitManager.toggle(player);
+            }
+        });
+        registrar.playToServer(WeaponInputPayload.TYPE, WeaponInputPayload.STREAM_CODEC, (payload, context) -> {
+            if (context.player() instanceof ServerPlayer player) {
+                SuitCombat.setInput(player, payload.weapon(), payload.down());
             }
         });
     }

@@ -21,5 +21,12 @@
   "hud.ironsuit.integrity": "ЦЕЛОСТНОСТЬ",
   "hud.ironsuit.speed": "СКР  %s м/с",
   "hud.ironsuit.altitude": "ВЫС  %s м",
-  "hud.ironsuit.heading": "КУРС  %s° %s"
+  "hud.ironsuit.heading": "КУРС  %s° %s",
+
+  "key.ironsuit.fire_repulsor": "Репульсоры (удерживать)",
+  "key.ironsuit.fire_beam": "Луч нагрудного реактора (удерживать для заряда)",
+  "message.ironsuit.low_energy": "Не хватает энергии костюма",
+  "message.ironsuit.charging": "ЗАРЯД ЛУЧА РЕАКТОРА %s%%",
+  "hud.ironsuit.repulsor_hint": "[%s] РЕПУЛЬСОРЫ",
+  "hud.ironsuit.beam_hint": "[%s] ЛУЧ РЕАКТОРА (УДЕРЖ.)"
 }

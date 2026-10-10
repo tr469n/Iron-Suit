@@ -88,6 +88,15 @@ public final class SuitHud {
             g.text(font, names[i] + " " + percent, bx, ly + 62, color, false);
         }
 
+        // ---- weapon hints under the left panel
+        int wy = ly + lh + 4, wh = 26;
+        g.fill(lx, wy, lx + lw, wy + wh, PANEL);
+        g.outline(lx, wy, lw, wh, CYAN_DIM);
+        g.text(font, Component.translatable("hud.ironsuit.repulsor_hint", IronSuitClient.FIRE_REPULSOR.get().getTranslatedKeyMessage()),
+                lx + 6, wy + 4, CYAN, false);
+        g.text(font, Component.translatable("hud.ironsuit.beam_hint", IronSuitClient.FIRE_BEAM.get().getTranslatedKeyMessage()),
+                lx + 6, wy + 14, CYAN, false);
+
         // ---- right panel: speed, altitude, heading
         Vec3 motion = player.getDeltaMovement();
         double speed = motion.length() * 20.0;

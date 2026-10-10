@@ -21,5 +21,12 @@
   "hud.ironsuit.integrity": "INTEGRITY",
   "hud.ironsuit.speed": "SPD  %s m/s",
   "hud.ironsuit.altitude": "ALT  %s m",
-  "hud.ironsuit.heading": "HDG  %s° %s"
+  "hud.ironsuit.heading": "HDG  %s° %s",
+
+  "key.ironsuit.fire_repulsor": "Fire Repulsors (hold)",
+  "key.ironsuit.fire_beam": "Chest Reactor Beam (hold to charge)",
+  "message.ironsuit.low_energy": "Suit energy too low",
+  "message.ironsuit.charging": "REACTOR BEAM CHARGING %s%%",
+  "hud.ironsuit.repulsor_hint": "[%s] REPULSORS",
+  "hud.ironsuit.beam_hint": "[%s] REACTOR BEAM (HOLD)"
 }

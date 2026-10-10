@@ -18,6 +18,11 @@ and update `neo_version` in gradle.properties if needed.
 2. Take off other helmet / leggings / boots.
 3. Press R (rebindable: Controls > Iron Suit) - the suit assembles piece by piece. Press R again to fold it back.
 4. With helmet + chestplate on, the Mark 85 HUD is shown.
+5. **Flight:** with the suit deployed, double-tap Space to take off. Space / Shift = up / down,
+   Ctrl (sprint) = boost. Flight drains suit energy; at 0 energy flight stops. A powered suit cancels fall damage.
+6. **Repulsors:** hold V (rebindable) to fire the palm repulsors. Each shot uses suit energy.
+7. **Reactor beam:** hold B to charge the chest reactor, then release to fire. A longer charge increases damage and blast radius.
+   Charging drains energy; minimum charge is about 0.75 seconds. Tuning constants are in `SuitFlight.java` and `SuitCombat.java`.
 
 ## Building the jar on GitHub (no local setup)
 1. Push this repository, including the `ironsuit-project-with-ci/ironsuit` folder and the root `.github` folder, to GitHub.
