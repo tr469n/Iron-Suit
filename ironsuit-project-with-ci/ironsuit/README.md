@@ -18,16 +18,13 @@ and update `neo_version` in gradle.properties if needed.
 2. Take off other helmet / leggings / boots.
 3. Press R (rebindable: Controls > Iron Suit) - the suit assembles piece by piece. Press R again to fold it back.
 4. With helmet + chestplate on, the Mark 85 HUD is shown.
-5. **Flight:** with the suit deployed, double-tap Space to take off. Space / Shift = up / down,
-   Ctrl (sprint) = boost. Flight drains suit energy; at 0 energy flight stops. A powered suit cancels fall damage.
-6. **Repulsors:** hold V (rebindable) to fire the palm repulsors. Each shot uses suit energy.
-7. **Reactor beam:** hold B to charge the chest reactor, then release to fire. A longer charge increases damage and blast radius.
-   Charging drains energy; minimum charge is about 0.75 seconds. Tuning constants are in `SuitFlight.java` and `SuitCombat.java`.
-
-## Building the jar on GitHub (no local setup)
-1. Push this repository, including the `ironsuit-project-with-ci/ironsuit` folder and the root `.github` folder, to GitHub.
-2. Open the **Actions** tab -> **Build Iron Suit mod** (it also runs on every push; or press **Run workflow**).
-3. When it is green, open the run and download the **ironsuit-jar** artifact (a zip containing the `.jar`).
-4. To publish a Release with the jar attached, push a tag: `git tag v0.1.0 && git push origin v0.1.0`.
-
-The jar is built with JDK 25 + Gradle 9.1.0 installed by the workflow, so `gradlew` is not required.
+5. **Flight:** with the suit deployed, double-tap Space to take off (like creative flight). Space / Shift = up / down,
+   Ctrl (sprint) = boost. Flying drains suit energy; at 0 energy flight stops. A powered suit cancels fall damage.
+6. **Repulsors:** hold V (rebindable) to fire the palm repulsors. Costs a little energy per shot.
+7. **Reactor beam:** hold B (rebindable) to charge the chest reactor, release to fire a heavy beam with an explosion.
+   Charging drains energy; the longer the charge, the stronger the shot (minimum charge is about 0.75 s).
+Tuning constants are at the top of `SuitFlight.java` and `SuitCombat.java`.
+8. **Helmet:** press M (rebindable) to take the helmet off into the suit and press it again to put it on. With the helmet off
+   the suit works exactly the same (flight, repulsors, reactor beam, fall protection); only the full helmet HUD is replaced
+   by a small status panel. Folding the suit with R also takes the stored helmet back.
+Weapon activity is logged to latest.log with the prefix `[IronSuit/combat]` (set `DEBUG = false` in `SuitCombat.java` to silence it).

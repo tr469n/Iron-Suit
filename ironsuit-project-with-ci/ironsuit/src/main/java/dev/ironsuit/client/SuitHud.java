@@ -36,9 +36,12 @@ public final class SuitHud {
         ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
         if (chest.is(ModItems.NANO_REACTOR.get())) {
             renderReactorPanel(g, mc, chest);
-        } else if (chest.is(ModItems.MARK85_CHESTPLATE.get())
-                && player.getItemBySlot(EquipmentSlot.HEAD).is(ModItems.MARK85_HELMET.get())) {
-            renderFull(g, mc, player, chest);
+        } else if (chest.is(ModItems.MARK85_CHESTPLATE.get())) {
+            if (player.getItemBySlot(EquipmentSlot.HEAD).is(ModItems.MARK85_HELMET.get())) {
+                renderFull(g, mc, player, chest);
+            } else {
+                renderCompact(g, mc, chest); // helmet taken off: no helmet display, only a small status panel
+            }
         }
     }
 
@@ -53,6 +56,23 @@ public final class SuitHud {
         energyBar(g, x + 6, y + 17, w - 12, energyOf(reactor));
         g.text(font, Component.translatable("hud.ironsuit.deploy_hint", IronSuitClient.TOGGLE_SUIT.get().getTranslatedKeyMessage()),
                 x + 6, y + 26, CYAN_DIM, false);
+    }
+
+    // ------------------------------------------------------------------ compact panel (helmet off)
+
+    private static void renderCompact(GuiGraphicsExtractor g, Minecraft mc, ItemStack chest) {
+        Font font = mc.font;
+        int x = 8, y = 8, w = 150, h = 62;
+        g.fill(x, y, x + w, y + h, PANEL);
+        g.outline(x, y, w, h, CYAN_DIM);
+        g.text(font, Component.translatable("hud.ironsuit.title"), x + 6, y + 5, CYAN, true);
+        energyBar(g, x + 6, y + 17, w - 12, energyOf(chest));
+        g.text(font, Component.translatable("hud.ironsuit.repulsor_hint", IronSuitClient.FIRE_REPULSOR.get().getTranslatedKeyMessage()),
+                x + 6, y + 27, CYAN_DIM, false);
+        g.text(font, Component.translatable("hud.ironsuit.beam_hint", IronSuitClient.FIRE_BEAM.get().getTranslatedKeyMessage()),
+                x + 6, y + 37, CYAN_DIM, false);
+        g.text(font, Component.translatable("hud.ironsuit.helmet_on_hint", IronSuitClient.TOGGLE_HELMET.get().getTranslatedKeyMessage()),
+                x + 6, y + 47, CYAN_DIM, false);
     }
 
     // ------------------------------------------------------------------ full HUD
@@ -89,13 +109,15 @@ public final class SuitHud {
         }
 
         // ---- weapon hints under the left panel
-        int wy = ly + lh + 4, wh = 26;
+        int wy = ly + lh + 4, wh = 36;
         g.fill(lx, wy, lx + lw, wy + wh, PANEL);
         g.outline(lx, wy, lw, wh, CYAN_DIM);
         g.text(font, Component.translatable("hud.ironsuit.repulsor_hint", IronSuitClient.FIRE_REPULSOR.get().getTranslatedKeyMessage()),
                 lx + 6, wy + 4, CYAN, false);
         g.text(font, Component.translatable("hud.ironsuit.beam_hint", IronSuitClient.FIRE_BEAM.get().getTranslatedKeyMessage()),
                 lx + 6, wy + 14, CYAN, false);
+        g.text(font, Component.translatable("hud.ironsuit.helmet_off_hint", IronSuitClient.TOGGLE_HELMET.get().getTranslatedKeyMessage()),
+                lx + 6, wy + 24, CYAN, false);
 
         // ---- right panel: speed, altitude, heading
         Vec3 motion = player.getDeltaMovement();

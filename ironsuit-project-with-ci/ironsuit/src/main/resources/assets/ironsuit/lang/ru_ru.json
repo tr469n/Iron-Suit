@@ -28,5 +28,12 @@
   "message.ironsuit.low_energy": "Не хватает энергии костюма",
   "message.ironsuit.charging": "ЗАРЯД ЛУЧА РЕАКТОРА %s%%",
   "hud.ironsuit.repulsor_hint": "[%s] РЕПУЛЬСОРЫ",
-  "hud.ironsuit.beam_hint": "[%s] ЛУЧ РЕАКТОРА (УДЕРЖ.)"
+  "hud.ironsuit.beam_hint": "[%s] ЛУЧ РЕАКТОРА (УДЕРЖ.)",
+
+  "key.ironsuit.toggle_helmet": "Снять / надеть шлем",
+  "message.ironsuit.need_suit": "Сначала соберите костюм",
+  "message.ironsuit.no_helmet": "В костюме нет шлема",
+  "message.ironsuit.helmet_slot_busy": "Сначала снимите другой шлем",
+  "hud.ironsuit.helmet_off_hint": "[%s] СНЯТЬ ШЛЕМ",
+  "hud.ironsuit.helmet_on_hint": "[%s] НАДЕТЬ ШЛЕМ"
 }

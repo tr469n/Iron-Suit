@@ -21,6 +21,11 @@ public final class ModNetwork {
                 SuitManager.toggle(player);
             }
         });
+        registrar.playToServer(ToggleHelmetPayload.TYPE, ToggleHelmetPayload.STREAM_CODEC, (payload, context) -> {
+            if (context.player() instanceof ServerPlayer player) {
+                SuitManager.toggleHelmet(player);
+            }
+        });
         registrar.playToServer(WeaponInputPayload.TYPE, WeaponInputPayload.STREAM_CODEC, (payload, context) -> {
             if (context.player() instanceof ServerPlayer player) {
                 SuitCombat.setInput(player, payload.weapon(), payload.down());

@@ -1,7 +1,8 @@
 package dev.ironsuit;
 
-import java.util.Map;
+import java.util.EnumMap;
 
+import net.minecraft.Util;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -28,12 +29,13 @@ public final class ModArmorMaterials {
 
     public static final ArmorMaterial MARK85 = new ArmorMaterial(
             50,
-                        Map.of(
-                                        ArmorType.BOOTS, 4,
-                                        ArmorType.LEGGINGS, 7,
-                                        ArmorType.CHESTPLATE, 9,
-                                        ArmorType.HELMET, 4,
-                                        ArmorType.BODY, 11),
+            Util.make(new EnumMap<>(ArmorType.class), map -> {
+                map.put(ArmorType.BOOTS, 4);
+                map.put(ArmorType.LEGGINGS, 7);
+                map.put(ArmorType.CHESTPLATE, 9);
+                map.put(ArmorType.HELMET, 4);
+                map.put(ArmorType.BODY, 11);
+            }),
             15,
             SoundEvents.ARMOR_EQUIP_NETHERITE,
             4.0F,

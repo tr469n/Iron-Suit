@@ -28,5 +28,12 @@
   "message.ironsuit.low_energy": "Suit energy too low",
   "message.ironsuit.charging": "REACTOR BEAM CHARGING %s%%",
   "hud.ironsuit.repulsor_hint": "[%s] REPULSORS",
-  "hud.ironsuit.beam_hint": "[%s] REACTOR BEAM (HOLD)"
+  "hud.ironsuit.beam_hint": "[%s] REACTOR BEAM (HOLD)",
+
+  "key.ironsuit.toggle_helmet": "Helmet On / Off",
+  "message.ironsuit.need_suit": "Deploy the suit first",
+  "message.ironsuit.no_helmet": "The suit has no helmet to put on",
+  "message.ironsuit.helmet_slot_busy": "Take off your other helmet first",
+  "hud.ironsuit.helmet_off_hint": "[%s] HELMET OFF",
+  "hud.ironsuit.helmet_on_hint": "[%s] HELMET ON"
 }

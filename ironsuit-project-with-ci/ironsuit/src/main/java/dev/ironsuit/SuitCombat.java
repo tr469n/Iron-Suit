@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -55,9 +54,19 @@ public final class SuitCombat {
 
     private static final double STEP = 0.25;
 
+    /** The client re-sends "key is down" every few ticks; if it stops arriving the weapon is released. */
+    private static final int INPUT_TIMEOUT = 12;
+
+    /** Writes weapon activity to the log (latest.log). Set to false once everything works. */
+    private static final boolean DEBUG = true;
+
     private static final class State {
         boolean repulsor;
         boolean beamHeld;
+        /** A key press that must produce at least one shot even if released before the next server tick. */
+        boolean pendingShot;
+        int repulsorExpire;
+        int beamExpire;
         int cooldown;
         int charge;
         boolean leftHand;
@@ -71,13 +80,27 @@ public final class SuitCombat {
 
     public static void setInput(ServerPlayer player, int weapon, boolean down) {
         if (down && !SuitManager.isActive(player)) {
+            if (player.tickCount % 20 < 5) {
+                player.sendSystemMessage(Component.translatable("message.ironsuit.need_suit"), true);
+                log("input refused: suit is not active for {}", player.getName().getString());
+            }
             return;
         }
         State state = STATES.computeIfAbsent(player.getUUID(), id -> new State());
+        int expire = player.tickCount + INPUT_TIMEOUT;
         if (weapon == WEAPON_REPULSOR) {
+            if (down && !state.repulsor) {
+                state.pendingShot = true;
+                log("repulsor key down ({})", player.getName().getString());
+            }
             state.repulsor = down;
+            state.repulsorExpire = expire;
         } else if (weapon == WEAPON_BEAM) {
+            if (down && !state.beamHeld) {
+                log("beam key down ({})", player.getName().getString());
+            }
             state.beamHeld = down;
+            state.beamExpire = expire;
         }
     }
 
@@ -100,15 +123,23 @@ public final class SuitCombat {
         if (state.cooldown > 0) {
             state.cooldown--;
         }
+        if (state.repulsor && player.tickCount > state.repulsorExpire) {
+            state.repulsor = false;
+        }
+        if (state.beamHeld && player.tickCount > state.beamExpire) {
+            state.beamHeld = false;
+        }
 
         // ---- repulsors
-        if (state.repulsor && state.cooldown == 0) {
+        if ((state.repulsor || state.pendingShot) && state.cooldown == 0) {
+            state.pendingShot = false;
             if (SuitManager.consumeEnergy(player, REPULSOR_COST)) {
                 fireRepulsor(level, player, state.leftHand);
                 state.leftHand = !state.leftHand;
                 state.cooldown = REPULSOR_COOLDOWN;
-            } else if (player.tickCount % 20 == 0) {
+            } else {
                 player.sendSystemMessage(Component.translatable("message.ironsuit.low_energy"), true);
+                log("repulsor: not enough energy ({})", SuitManager.getEnergy(player));
             }
         }
 
@@ -131,7 +162,7 @@ public final class SuitCombat {
             state.charge = 0;
         }
 
-        if (!state.repulsor && !state.beamHeld && state.charge == 0 && state.cooldown == 0) {
+        if (!state.repulsor && !state.pendingShot && !state.beamHeld && state.charge == 0 && state.cooldown == 0) {
             STATES.remove(player.getUUID());
         }
     }
@@ -147,10 +178,10 @@ public final class SuitCombat {
                 .add(0, -0.35, 0);
 
         Hit hit = trace(level, player, from, look, REPULSOR_RANGE);
+        log("repulsor shot, hit entity: {}", hit.target);
         drawBeam(level, from, hit.end, 1.0, false);
 
-        level.sendParticles(ColorParticleOption.create(ParticleTypes.FLASH, 0xFFFFFF),
-            from.x, from.y, from.z, 1, 0.0, 0.0, 0.0, 0.0);
+        level.sendParticles(ParticleTypes.FLASH, from.x, from.y, from.z, 1, 0, 0, 0, 0);
         level.sendParticles(ParticleTypes.ELECTRIC_SPARK, hit.end.x, hit.end.y, hit.end.z, 8, 0.15, 0.15, 0.15, 0.1);
         play(level, player, SoundEvents.FIREWORK_ROCKET_BLAST, 0.8F, 1.7F);
 
@@ -180,8 +211,7 @@ public final class SuitCombat {
         Hit hit = trace(level, player, from, look, range);
         drawBeam(level, from, hit.end, 0.5, true);
 
-        level.sendParticles(ColorParticleOption.create(ParticleTypes.FLASH, 0xFFFFFF),
-            from.x, from.y, from.z, 1, 0.0, 0.0, 0.0, 0.0);
+        level.sendParticles(ParticleTypes.FLASH, from.x, from.y, from.z, 1, 0, 0, 0, 0);
         play(level, player, SoundEvents.WARDEN_SONIC_BOOM, 1.2F, 1.4F);
 
         float damage = BEAM_DAMAGE_MIN + (BEAM_DAMAGE_MAX - BEAM_DAMAGE_MIN) * power;
@@ -196,6 +226,7 @@ public final class SuitCombat {
 
         // Recoil: the blast pushes the shooter back a little.
         player.push(-look.x * 0.4 * power, 0.05, -look.z * 0.4 * power);
+        player.hurtMarked = true;
     }
 
     // ------------------------------------------------------------------ ray casting
@@ -264,6 +295,13 @@ public final class SuitCombat {
 
     private static void knockback(LivingEntity target, Vec3 dir, double strength) {
         target.push(dir.x * strength, 0.15 + dir.y * strength * 0.5, dir.z * strength);
+        target.hurtMarked = true;
+    }
+
+    private static void log(String message, Object... args) {
+        if (DEBUG) {
+            IronSuit.LOGGER.info("[IronSuit/combat] " + message, args);
+        }
     }
 
     private static void play(ServerLevel level, ServerPlayer player, SoundEvent sound, float volume, float pitch) {

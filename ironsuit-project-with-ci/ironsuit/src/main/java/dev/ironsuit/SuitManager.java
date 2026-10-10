@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -27,6 +26,8 @@ import net.minecraft.world.item.ItemStack;
 public final class SuitManager {
     public static final int MAX_ENERGY = 10_000;
     public static final int START_ENERGY = 2_500;
+    /** Index inside the chestplate's SUIT_STORAGE where the helmet is kept while it is taken off (0 = reactor). */
+    public static final int HELMET_SLOT = 1;
     private static final int REGEN_PER_SECOND = 40;
     private static final int STEP_TICKS = 8;
 
@@ -76,19 +77,58 @@ public final class SuitManager {
         TASKS.remove(id);
     }
 
+    /**
+     * True when the suit is deployed (Mark 85 chestplate with the reactor inside) and not in the middle of
+     * assembling / folding. The helmet does NOT matter: the suit works the same with the helmet taken off.
+     */
     public static boolean isActive(Player player) {
         ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
-        return isSuitChest(chest) && hasCore(chest)
-                && player.getItemBySlot(EquipmentSlot.HEAD).is(ModItems.MARK85_HELMET.get());
+        return isSuitChest(chest) && hasCore(chest) && !TASKS.containsKey(player.getUUID());
     }
 
+    /** Called when the player presses the helmet key: takes the helmet off into the suit, or puts it back on. */
+    public static void toggleHelmet(ServerPlayer player) {
+        if (TASKS.containsKey(player.getUUID())) {
+            return;
+        }
+        ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
+        if (!isSuitChest(chest) || !hasCore(chest)) {
+            player.sendSystemMessage(Component.translatable("message.ironsuit.need_suit"), true);
+            return;
+        }
+        SuitStorage storage = chest.get(ModComponents.SUIT_STORAGE.get());
+        ItemStack head = player.getItemBySlot(EquipmentSlot.HEAD);
+        if (head.is(ModItems.MARK85_HELMET.get())) {
+            chest.set(ModComponents.SUIT_STORAGE.get(), storage.with(HELMET_SLOT, head));
+            player.setItemSlot(EquipmentSlot.HEAD, ItemStack.EMPTY);
+            helmetEffect(player, false);
+        } else if (head.isEmpty()) {
+            ItemStack stored = storage.get(HELMET_SLOT);
+            if (stored.is(ModItems.MARK85_HELMET.get())) {
+                player.setItemSlot(EquipmentSlot.HEAD, stored);
+                chest.set(ModComponents.SUIT_STORAGE.get(), storage.with(HELMET_SLOT, ItemStack.EMPTY));
+                helmetEffect(player, true);
+            } else {
+                player.sendSystemMessage(Component.translatable("message.ironsuit.no_helmet"), true);
+            }
+        } else {
+            player.sendSystemMessage(Component.translatable("message.ironsuit.helmet_slot_busy"), true);
+        }
+    }
+
+    /** True if the suit is deployed and its helmet is currently stored inside the chestplate. */
+    public static boolean isHelmetStored(ItemStack chestplate) {
+        SuitStorage storage = chestplate.get(ModComponents.SUIT_STORAGE.get());
+        return storage != null && storage.get(HELMET_SLOT).is(ModItems.MARK85_HELMET.get());
+    }
+
+    /** Energy stored in the worn reactor / suit chestplate, 0 if there is none. */
     public static int getEnergy(Player player) {
         ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
-        return isSuitChest(chest) || isReactor(chest)
-                ? chest.getOrDefault(ModComponents.ENERGY.get(), 0)
-                : 0;
+        return isSuitChest(chest) || isReactor(chest) ? chest.getOrDefault(ModComponents.ENERGY.get(), 0) : 0;
     }
 
+    /** Takes energy from the worn suit. Returns false (and takes nothing) if there is not enough. */
     public static boolean consumeEnergy(Player player, int amount) {
         ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
         if (!isSuitChest(chest) && !isReactor(chest)) {
@@ -170,10 +210,16 @@ public final class SuitManager {
 
         if (piece != CHEST) {
             ItemStack worn = player.getItemBySlot(slotOf(piece));
+            SuitStorage chestStorage = chestplate.get(ModComponents.SUIT_STORAGE.get());
             if (isPieceFor(piece, worn)) {
                 player.setItemSlot(slotOf(piece), ItemStack.EMPTY);
                 core.set(ModComponents.SUIT_STORAGE.get(), folded.with(piece, worn));
-                chestplate.set(ModComponents.SUIT_STORAGE.get(), new SuitStorage(List.of(core)));
+                chestplate.set(ModComponents.SUIT_STORAGE.get(), chestStorage.with(0, core));
+            } else if (piece == HEAD && isHelmetStored(chestplate)) {
+                // The helmet was taken off with the helmet key: fold it from the suit's storage.
+                core.set(ModComponents.SUIT_STORAGE.get(), folded.with(HEAD, chestStorage.get(HELMET_SLOT)));
+                chestplate.set(ModComponents.SUIT_STORAGE.get(),
+                        chestStorage.with(HELMET_SLOT, ItemStack.EMPTY).with(0, core));
             }
             stepEffect(player, piece, step, false);
             return true;
@@ -270,12 +316,20 @@ public final class SuitManager {
         play(level, player, SoundEvents.AMETHYST_BLOCK_CHIME, 1.0F, pitch);
     }
 
+    private static void helmetEffect(ServerPlayer player, boolean putOn) {
+        if (!(player.level() instanceof ServerLevel level)) {
+            return;
+        }
+        level.sendParticles(ParticleTypes.END_ROD, player.getX(), player.getY() + 1.7, player.getZ(),
+                16, 0.25, 0.2, 0.25, 0.04);
+        play(level, player, SoundEvents.AMETHYST_BLOCK_CHIME, 1.0F, putOn ? 1.6F : 0.8F);
+    }
+
     private static void finishEffect(ServerPlayer player, boolean assembling) {
         if (!(player.level() instanceof ServerLevel level)) {
             return;
         }
-        level.sendParticles(ColorParticleOption.create(ParticleTypes.FLASH, 0xFFFFFF),
-            player.getX(), player.getY() + 1.0, player.getZ(), 1, 0.0, 0.0, 0.0, 0.0);
+        level.sendParticles(ParticleTypes.FLASH, player.getX(), player.getY() + 1.0, player.getZ(), 1, 0, 0, 0, 0);
         play(level, player, assembling ? SoundEvents.BEACON_ACTIVATE : SoundEvents.BEACON_DEACTIVATE, 1.0F, 1.2F);
     }
 
