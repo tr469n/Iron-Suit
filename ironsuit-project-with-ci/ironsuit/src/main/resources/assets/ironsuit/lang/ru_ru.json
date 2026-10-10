@@ -1,0 +1,25 @@
+{
+  "itemGroup.ironsuit": "Iron Suit",
+  "item.ironsuit.gold_titanium_ingot": "Золото-титановый слиток",
+  "item.ironsuit.nano_reactor": "Нано-реактор",
+  "item.ironsuit.mark85_helmet": "Шлем Mark 85",
+  "item.ironsuit.mark85_chestplate": "Нагрудник Mark 85",
+  "item.ironsuit.mark85_leggings": "Поножи Mark 85",
+  "item.ironsuit.mark85_boots": "Ботинки Mark 85",
+
+  "key.category.ironsuit.main": "Iron Suit",
+  "key.ironsuit.toggle_suit": "Собрать / разобрать костюм",
+
+  "message.ironsuit.need_reactor": "Сначала наденьте нано-реактор на грудь",
+  "message.ironsuit.clear_armor": "Снимите другую броню перед сборкой костюма",
+
+  "hud.ironsuit.title": "MARK 85",
+  "hud.ironsuit.online": "КОСТЮМ АКТИВЕН",
+  "hud.ironsuit.reactor": "НАНО-РЕАКТОР",
+  "hud.ironsuit.deploy_hint": "[%s] СОБРАТЬ КОСТЮМ",
+  "hud.ironsuit.energy": "ЭНЕРГИЯ",
+  "hud.ironsuit.integrity": "ЦЕЛОСТНОСТЬ",
+  "hud.ironsuit.speed": "СКР  %s м/с",
+  "hud.ironsuit.altitude": "ВЫС  %s м",
+  "hud.ironsuit.heading": "КУРС  %s° %s"
+}

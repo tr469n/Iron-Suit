@@ -1,0 +1,25 @@
+{
+  "itemGroup.ironsuit": "Iron Suit",
+  "item.ironsuit.gold_titanium_ingot": "Gold-Titanium Alloy Ingot",
+  "item.ironsuit.nano_reactor": "Nano-Reactor",
+  "item.ironsuit.mark85_helmet": "Mark 85 Helmet",
+  "item.ironsuit.mark85_chestplate": "Mark 85 Chestplate",
+  "item.ironsuit.mark85_leggings": "Mark 85 Leggings",
+  "item.ironsuit.mark85_boots": "Mark 85 Boots",
+
+  "key.category.ironsuit.main": "Iron Suit",
+  "key.ironsuit.toggle_suit": "Deploy / Retract Suit",
+
+  "message.ironsuit.need_reactor": "Wear the Nano-Reactor on your chest first",
+  "message.ironsuit.clear_armor": "Take off other armor before deploying the suit",
+
+  "hud.ironsuit.title": "MARK 85",
+  "hud.ironsuit.online": "SUIT ONLINE",
+  "hud.ironsuit.reactor": "NANO-REACTOR",
+  "hud.ironsuit.deploy_hint": "[%s] DEPLOY SUIT",
+  "hud.ironsuit.energy": "ENERGY",
+  "hud.ironsuit.integrity": "INTEGRITY",
+  "hud.ironsuit.speed": "SPD  %s m/s",
+  "hud.ironsuit.altitude": "ALT  %s m",
+  "hud.ironsuit.heading": "HDG  %s° %s"
+}

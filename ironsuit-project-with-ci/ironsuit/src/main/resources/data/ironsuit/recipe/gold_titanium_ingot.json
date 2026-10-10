@@ -1,0 +1,6 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [ "minecraft:netherite_ingot", "minecraft:gold_ingot" ],
+  "result": { "id": "ironsuit:gold_titanium_ingot", "count": 2 }
+}

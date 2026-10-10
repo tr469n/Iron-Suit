@@ -1,0 +1,10 @@
+{
+  "layers": {
+    "humanoid": [
+      { "texture": "ironsuit:mark85" }
+    ],
+    "humanoid_leggings": [
+      { "texture": "ironsuit:mark85" }
+    ]
+  }
+}
