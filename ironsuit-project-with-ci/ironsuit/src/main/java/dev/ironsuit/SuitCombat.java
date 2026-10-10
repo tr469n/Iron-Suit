@@ -196,7 +196,6 @@ public final class SuitCombat {
 
         // Recoil: the blast pushes the shooter back a little.
         player.push(-look.x * 0.4 * power, 0.05, -look.z * 0.4 * power);
-        player.hurtMarked = true;
     }
 
     // ------------------------------------------------------------------ ray casting
@@ -265,7 +264,6 @@ public final class SuitCombat {
 
     private static void knockback(LivingEntity target, Vec3 dir, double strength) {
         target.push(dir.x * strength, 0.15 + dir.y * strength * 0.5, dir.z * strength);
-        target.hurtMarked = true;
     }
 
     private static void play(ServerLevel level, ServerPlayer player, SoundEvent sound, float volume, float pitch) {

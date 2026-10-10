@@ -14,6 +14,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.common.util.Lazy;
 
@@ -36,6 +37,7 @@ public final class IronSuitClient {
 
     private static boolean repulsorWasDown;
     private static boolean beamWasDown;
+    private static boolean screenOpen;
 
     private IronSuitClient() {}
 
@@ -53,6 +55,11 @@ public final class IronSuitClient {
     }
 
     @SubscribeEvent // game event bus
+    public static void onScreenOpening(ScreenEvent.Opening event) {
+        screenOpen = event.getNewScreen() != null;
+    }
+
+    @SubscribeEvent // game event bus
     public static void onClientTick(ClientTickEvent.Post event) {
         while (TOGGLE_SUIT.get().consumeClick()) {
             if (Minecraft.getInstance().player != null) {
@@ -62,7 +69,7 @@ public final class IronSuitClient {
 
         // Weapons: only send a packet when the state of the key changes. Keys count as released in menus.
         Minecraft mc = Minecraft.getInstance();
-        boolean canFire = mc.player != null && mc.screen == null;
+        boolean canFire = mc.player != null && !screenOpen;
         boolean repulsorDown = canFire && FIRE_REPULSOR.get().isDown();
         boolean beamDown = canFire && FIRE_BEAM.get().isDown();
         if (mc.player != null) {
